@@ -1,5 +1,24 @@
-keil c51 to sdcc
+translate keil code to sdcc
+support
+- c51 to sdcc
 
+
+## install
+```
+git clone 
+python setup.py install
+```
+
+## usage
 ```python
 C512SDCC(src)
 ```
+
+## roadmap
+- a51
+- mdk
+- ..
+- pip
+- CMD TOOLS
+- AUTO TEST
+- mulit line comment support
