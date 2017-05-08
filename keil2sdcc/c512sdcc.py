@@ -33,6 +33,7 @@ class C512SDCC():
     def __init__(self, keil_file):
         self.src_encode = "utf8"
         self.keil_file = keil_file
+        self.mulit_start = False
         base, ext = os.path.splitext(keil_file)
         self.sdcc_file = base + ".sdcc.c"
         self.convert_file()
@@ -58,8 +59,16 @@ class C512SDCC():
 
     def parse_line(self, c_line):
         c_line = c_line.expandtabs(4)
+        if self.mulit_start is True:
+            if c_line.find("*/") != -1:
+                self.mulit_start = False
+            return 0, None, "", c_line
         indent = len(c_line) - len(c_line.lstrip(" "))
-        if c_line.find("//") != -1:
+        if c_line.find("/*") != -1:
+            statements_line, comments = c_line.split("/*")
+            comments = "/*" + comments
+            self.mulit_start = True
+        elif c_line.find("//") != -1:
             statements_line, comments = c_line.split("//")
             comments = "//" + comments
         else:
@@ -83,7 +92,7 @@ class C512SDCC():
         # keil 2 sdcc
         if not statements_words:
             if comments is not None:
-                sdcc_line = f"{comments}"
+                sdcc_line = comments
             else:
                 sdcc_line = "\n"
             sdcc_line = f"{' '*indent}{sdcc_line}"

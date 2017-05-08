@@ -1,3 +1,6 @@
+
+.vscode/
+*.sdcc.c
 # SDCC stuff
 *.lnk
 *.lst
