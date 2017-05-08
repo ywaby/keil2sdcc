@@ -21,15 +21,33 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+	/*用户标志位0  ^*/
 sfr B = 0xF0; 
-    sfr B = 0xF0; 
+    sfr B = 0xF0; 	/*用户标志位0  ^*/
 sfr B = 0xF0; 			//B 寄存器
-sfr PSW    = 0xD0;          	//程序状态字寄存器
+sfr PSW    = 0xD0;          	//程序状态字寄存器	/*用户标志位0  ^*/
 	sbit CY    = PSW^7;      	//进位标志位
-	sbit AC    = PSW^6;       	//辅助进位标志位
-	sbit F0    = PSW^5;       	//用户标志位0
-xdata char nobu _at_ 0x34;
+  
+
+
+      
+
+/****************************************
+ *            a
+ *         -------
+ *        |       |
+ *      f |       | b
+ *         ---g---
+ *      e |       | c
+ *        |       |
+ *         ---d---   dp
+ ****************************************/
+ 
+/*------------ 系统管理特殊功能寄存器 -------------*/
+
+	sbit AC    = PSW^6;       		/*用户标志位0  ^*///辅助进位标志位
+	sbit F0    = PSW^5;       	/*用户标志位0  ^*/	//用户标志位0
+xdata char nobu _at_ 0x34;	/*用户标志位0  ^*/
   sbit F0=PSW^5;       	/*用户标志位0  ^*/
 /** @addtogroup  UserChange  移植修改
   @{
@@ -54,19 +72,22 @@ void main(){
   FD612_Init();
   FD612_DispStr(0, "abcd");
   while (1) {
-    switch (FD612_RdKey())
+    switch (FD612_RdKey())  ///<FD612的按键定义
     {
-    case FD612_SW1: {
+    case FD612_SW1: { ///<FD612的按键定义
       FD612_dispBuff.state = (~FD612_dispBuff.state & 0x08) |
                                  (FD612_dispBuff.state & 0xf7);
       FD612_WAIT_SW_FREE;
       break;
+      /** @addtogroup  UserChange  移植修改
+  @{
+*/
     }
-    case FD612_SW2: { 
-      if (brightness == 0x07)
+    case FD612_SW2: {   /** @addtogroup  UserChange  移植修改
+      if (brightness == 0x07) /*用户标志位0  ^*/
         brightness = 0x00;
       else
-        brightness++;
+        brightness++;/*用户标志位0  ^*/
       FD612_dispBuff.state = FD612_dispBuff.state & 0xf8 | brightness;
       FD612_WAIT_SW_FREE;
       break;

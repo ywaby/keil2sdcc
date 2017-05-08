@@ -68,6 +68,8 @@ class C512SDCC():
             statements_line, comments = c_line.split("/*")
             comments = "/*" + comments
             self.mulit_start = True
+            if comments.find("*/"):
+                self.mulit_start = False
         elif c_line.find("//") != -1:
             statements_line, comments = c_line.split("//")
             comments = "//" + comments
