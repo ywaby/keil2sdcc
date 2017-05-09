@@ -10,7 +10,7 @@ class C512SDCC():
     """
     unsporrt bdata
     """
-    keil2sdcc_dict = {
+    __keil2sdcc_dict = {
         "_at_": "__at",
         "sbit": "__sbit",
         "sfr": "__sfr",
@@ -25,51 +25,55 @@ class C512SDCC():
         "reentrant": "__reentrant",
         "using": "__using",
     }
-    keil_memory_types = ["code", "data", "idata",
-                         "pdata", "xdata", "bdata", "far"]
-    keil_register_types = ["sfr", "sfr16", "sbit"]
-    register_map = {}
+    __keil_memory_types = ["code", "data", "idata", "pdata", "xdata", "bdata", "far"]
+    __keil_register_types = ["sfr", "sfr16", "sbit"]
 
-    def __init__(self, keil_file):
-        self.src_encode = "utf8"
-        self.keil_file = keil_file
-        self.mulit_start = False
-        base, ext = os.path.splitext(keil_file)
-        self.sdcc_file = base + ".sdcc.c"
-        self.convert_file()
-        print(f"{keil_file} --> {self.sdcc_file}")
+    def __init__(self, keil_srcs=[], encode="utf8"):
+        self.__encode = encode
+        self.__mulit_start = False
+        self.__register_map = {}
+        if len(keil_srcs) != 0:
+            self.keil_srcs = keil_srcs
+            self.convert_all()
 
-    def convert_file(self):
-        if not os.path.exists(self.keil_file):
-            raise Exception(f"keil_file not exist: {self.keil_file}")
-        f_keil = open(self.keil_file, "r", encoding=self.src_encode)
-        f_sdcc = open(self.sdcc_file, "w", encoding="utf8")
+    def convert_all(self):
+        for keil_src in self.keil_srcs:
+            self.convert_file(keil_src)
+
+    def convert_file(self, keil_src):
+        if not os.path.exists(keil_src):
+            raise Exception(f"keil_src not exist: {keil_src}")
+        base, ext = os.path.splitext(keil_src)
+        sdcc_src = base + ".sdcc.c"
+        f_keil = open(keil_src, "r", encoding=self.__encode)
+        f_sdcc = open(sdcc_src, "w", encoding="utf8")
         for line in f_keil.readlines():
-            sdcc_line = self.convert_line(line)
+            sdcc_line = self.__convert_line(line)
             f_sdcc.write(sdcc_line)
         f_keil.close()
         f_sdcc.close()
+        print(f"{keil_src} --> {sdcc_src}")
 
-    def get_words(self, statements):
+    def __get_words(self, statements):
         statements.replace("=", " = ")
         words = statements.split(" ")
         while "" in words:
             words.remove("")
         return words
 
-    def parse_line(self, c_line):
+    def __parse_line(self, c_line):
         c_line = c_line.expandtabs(4)
-        if self.mulit_start is True:
+        if self.__mulit_start is True:
             if c_line.find("*/") != -1:
-                self.mulit_start = False
+                self.__mulit_start = False
             return 0, None, "", c_line
         indent = len(c_line) - len(c_line.lstrip(" "))
         if c_line.find("/*") != -1:
             statements_line, comments = c_line.split("/*")
             comments = "/*" + comments
-            self.mulit_start = True
+            self.__mulit_start = True
             if comments.find("*/"):
-                self.mulit_start = False
+                self.__mulit_start = False
         elif c_line.find("//") != -1:
             statements_line, comments = c_line.split("//")
             comments = "//" + comments
@@ -85,12 +89,12 @@ class C512SDCC():
         else:
             statements_line_end = ""
             statements = statements_line.split(";")
-        statements_words = [self.get_words(statements)
+        statements_words = [self.__get_words(statements)
                             for statements in statements]
         return indent, statements_words, statements_line_end, comments
 
-    def convert_line(self, c51_line):
-        indent, statements_words, statements_line_end, comments = self.parse_line(c51_line)
+    def __convert_line(self, c51_line):
+        indent, statements_words, statements_line_end, comments = self.__parse_line(c51_line)
         # keil 2 sdcc
         if not statements_words:
             if comments is not None:
@@ -105,7 +109,7 @@ class C512SDCC():
             if "_at_" in statements:
                 addr = statements[-1]
                 for word in statements:
-                    if word in C512SDCC.keil_memory_types:
+                    if word in C512SDCC.__keil_memory_types:
                         statements.remove(word)
                         statements.remove(addr)
                         statements.remove("_at_")
@@ -116,22 +120,22 @@ class C512SDCC():
 
             # translate register_type
             # sfr name = address;
-            if statements[0] in C512SDCC.keil_register_types:
+            if statements[0] in C512SDCC.__keil_register_types:
                 register_type, name = statements[0:2]
                 addr = "".join(statements[3:])
-                C512SDCC.register_map[name] = addr
+                self.__register_map[name] = addr
                 if register_type == "sbit" and "^" in addr:
                     base_addr, sub_addr = addr.split("^", 1)
-                    if base_addr in C512SDCC.register_map:
-                        base_addr = C512SDCC.register_map[base_addr]
+                    if base_addr in self.__register_map:
+                        base_addr = self.__register_map[base_addr]
                     addr = f"{base_addr}+{sub_addr}"
                 statements = [register_type, "__at", f"({addr})", name]
 
                 # traslate keyword
             for word in statements:
-                if word in C512SDCC.keil2sdcc_dict:
+                if word in C512SDCC.__keil2sdcc_dict:
                     statements[statements.index(
-                        word)] = C512SDCC.keil2sdcc_dict[word]
+                        word)] = C512SDCC.__keil2sdcc_dict[word]
             statements_words[idx] = statements  # update
         statements_line = ";".join([" ".join(statements) for statements in statements_words]) + statements_line_end
         if comments is not None:
@@ -140,4 +144,3 @@ class C512SDCC():
             sdcc_line = statements_line + "\n"
         sdcc_line = f"{' '*indent}{sdcc_line}"
         return sdcc_line
-

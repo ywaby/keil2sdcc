@@ -4,9 +4,11 @@ import argparse
 
 
 def main():
-    parser = argparse.ArgumentParser(prog='keil2sdcc',
-                                     description='convert keil program to sdcc',
-                                     epilog="project at: https://www.github.ywaby.keil2sdcc")
+    parser = argparse.ArgumentParser(
+        prog='keil2sdcc',
+        description='convert keil program to sdcc',
+        epilog="project at: https://www.github.ywaby.keil2sdcc"
+    )
     parser.add_argument('-v', "--version",
                         help="print version",
                         action='version',
@@ -15,8 +17,7 @@ def main():
                         help="keil files to convert.",
                         nargs='*')
     args = parser.parse_args()
-    for file in args.files:
-        C512SDCC(file)
+    C512SDCC(args.files)
 
 
 if __name__ == '__main__':
