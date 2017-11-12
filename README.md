@@ -16,8 +16,9 @@ import use
 import keil2sdcc
 keil2sdcc.C512SDCC(keil_file)
 ```
+
 console use
-```bash
+```sh
 keil2sdcc keil_file1 keil_file2
 ```
 
