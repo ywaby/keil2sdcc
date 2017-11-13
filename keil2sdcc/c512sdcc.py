@@ -1,8 +1,9 @@
-# Copyright (c) 2017 ywaby@163.com
-#
-# This software is released under the MIT License.
-# https://opensource.org/licenses/MIT
-# python src/c512sdcc
+'''
+Copyright (c) 2017 ywaby@163.com
+
+This software is released under the MIT License.
+https://opensource.org/licenses/MIT
+'''
 import os
 
 
@@ -25,10 +26,11 @@ class C512SDCC():
         "reentrant": "__reentrant",
         "using": "__using",
     }
-    __keil_memory_types = ["code", "data", "idata", "pdata", "xdata", "bdata", "far"]
+    __keil_memory_types = ["code", "data",
+                           "idata", "pdata", "xdata", "bdata", "far"]
     __keil_register_types = ["sfr", "sfr16", "sbit"]
 
-    def __init__(self, keil_srcs=[], encode="utf8"):
+    def __init__(self, keil_srcs=[str], encode="utf8"):
         self.__encode = encode
         self.__mulit_start = False
         self.__register_map = {}
@@ -40,11 +42,11 @@ class C512SDCC():
         for keil_src in self.keil_srcs:
             self.convert_file(keil_src)
 
-    def convert_file(self, keil_src):
+    def convert_file(self, keil_src: str):
         if not os.path.exists(keil_src):
             raise Exception(f"keil_src not exist: {keil_src}")
-        base, ext = os.path.splitext(keil_src)
-        sdcc_src = base + ".sdcc.c"
+        folder,ext = os.path.splitext(keil_src)
+        sdcc_src = folder + ".sdcc.c"
         f_keil = open(keil_src, "r", encoding=self.__encode)
         f_sdcc = open(sdcc_src, "w", encoding="utf8")
         for line in f_keil.readlines():
@@ -94,7 +96,8 @@ class C512SDCC():
         return indent, statements_words, statements_line_end, comments
 
     def __convert_line(self, c51_line):
-        indent, statements_words, statements_line_end, comments = self.__parse_line(c51_line)
+        indent, statements_words, statements_line_end, comments = self.__parse_line(
+            c51_line)
         # keil 2 sdcc
         if not statements_words:
             if comments is not None:
@@ -137,7 +140,8 @@ class C512SDCC():
                     statements[statements.index(
                         word)] = C512SDCC.__keil2sdcc_dict[word]
             statements_words[idx] = statements  # update
-        statements_line = ";".join([" ".join(statements) for statements in statements_words]) + statements_line_end
+        statements_line = ";".join(
+            [" ".join(statements) for statements in statements_words]) + statements_line_end
         if comments is not None:
             sdcc_line = statements_line + f"{comments}"
         else:
