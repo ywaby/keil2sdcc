@@ -3,11 +3,10 @@ convert keil code to sdcc
 support
 - c51 to sdcc
 
-
 ## install
-```
-git clone 
-python setup.py install
+```sh
+git clone git@github.com:ywaby/keil2sdcc.git
+python3 setup.py install
 ```
 
 ## usage
@@ -24,7 +23,7 @@ keil2sdcc keil_file1 keil_file2
 
 
 ## roadmap
-- use unittest
+- use unittest for test
 - a51
 - pip
 - mdk
