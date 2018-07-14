@@ -1,6 +1,6 @@
 convert keil code to sdcc
 
-support
+feature
 - c51 to sdcc
 
 ## install
@@ -18,13 +18,6 @@ keil2sdcc.C512SDCC(keil_file)
 
 console use
 ```sh
-keil2sdcc keil_file1 keil_file2
+keil2sdcc keil_c51_1.c keil_c51_2.c
+# generate keil_c51_1.sdcc.c keil_c51_2.sdcc.c at file dir
 ```
-
-
-## roadmap
-- use unittest for test
-- a51
-- pip
-- mdk
-- ..
