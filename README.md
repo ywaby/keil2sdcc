@@ -1,4 +1,5 @@
 convert keil code to sdcc
+license under MIT
 
 feature
 - c51 to sdcc
@@ -8,10 +9,11 @@ feature
 git clone git@github.com:ywaby/keil2sdcc.git
 python3 setup.py install
 ```
+use python 3.7
 
 ## usage
 import use
-```python
+```py
 import keil2sdcc
 keil2sdcc.C512SDCC(keil_file)
 ```
