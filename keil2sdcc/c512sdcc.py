@@ -1,5 +1,6 @@
 import os
 
+
 class C512SDCC():
     """
     unsupport bdata
@@ -24,11 +25,11 @@ class C512SDCC():
     __keil_register_types = ["sfr", "sfr16", "sbit"]
 
     def __init__(self, keil_srcs=[str], encode="utf8"):
-        self.__encode = encode # input files encode
-        self.__mulit_start = False # multiline comment start
-        self.cur_line_num = 0 # current line num
-        self.cur_src=""
-        self.__register_map = {} # register name <=> addr
+        self._encode = encode  # input files encode
+        self._multi_line_comments_start = False  # multiline comment start
+        self.cur_line_num = 0  # current line num
+        self.cur_src = ""
+        self._register_map = {}  # register name <=> addr
         if len(keil_srcs) != 0:
             self.keil_srcs = keil_srcs
             self.convert_all()
@@ -42,12 +43,12 @@ class C512SDCC():
     def convert_file(self, keil_src):
         if not os.path.exists(keil_src):
             raise Exception(f"keil_src not exist: {keil_src}")
-        folder,ext = os.path.splitext(keil_src)
+        folder, ext = os.path.splitext(keil_src)
         sdcc_src = folder + ".sdcc.c"
-        f_keil = open(keil_src, "r", encoding=self.__encode)
+        f_keil = open(keil_src, "r", encoding=self._encode)
         f_sdcc = open(sdcc_src, "w", encoding="utf8")
         for line in f_keil.readlines():
-            self.cur_line_num+=1
+            self.cur_line_num += 1
             sdcc_line = self.__convert_line(line)
             f_sdcc.write(sdcc_line)
         f_keil.close()
@@ -61,19 +62,25 @@ class C512SDCC():
             words.remove("")
         return words
 
-    def __parse_line(self, c_line): # return indent, statements_words, statements_line_end, comments
+    def __parse_line(self, c_line):
+        # return indent, statements_words, statements_line_end, comments
+        # statements_words =[statement_words]
+        # example
+        #   sfr PSW    = 0xD0;//comments
+        # return (2,[["sfr","PSW","=","0xD0"]],"//comments")
+
         c_line = c_line.expandtabs(4)
-        if self.__mulit_start is True:
+        if self._multi_line_comments_start is True:
             if c_line.find("*/") != -1:
-                self.__mulit_start = False
+                self._multi_line_comments_start = False
             return 0, None, "", c_line
         indent = len(c_line) - len(c_line.lstrip(" "))
         if c_line.find("/*") != -1:
             statements_line, comments = c_line.split("/*")
             comments = "/*" + comments
-            self.__mulit_start = True
-            if comments.find("*/"):
-                self.__mulit_start = False
+            self._multi_line_comments_start = True
+            if comments.find("*/")!= -1:
+                self._multi_line_comments_start = False
         elif c_line.find("//") != -1:
             statements_line, comments = c_line.split("//")
             comments = "//" + comments
@@ -94,6 +101,7 @@ class C512SDCC():
         return indent, statements_words, statements_line_end, comments
 
     def __convert_line(self, c51_line):
+
         indent, statements_words, statements_line_end, comments = self.__parse_line(
             c51_line)
         # keil 2 sdcc
@@ -114,21 +122,23 @@ class C512SDCC():
                         statement_words.remove(word)
                         statement_words.remove(addr)
                         statement_words.remove("_at_")
-                        statement_words = [word, "__at", f"({addr})"] + statement_words
+                        statement_words = [word, "__at",
+                                           f"({addr})"] + statement_words
                         break
                 else:
-                    raise Exception(f"{self.cur_src}({self.cur_line_num}): unsupport keil memory type")
+                    raise Exception(
+                        f"{self.cur_src}({self.cur_line_num}): unsupport keil memory type")
 
             # translate register_type
             # sfr name = address;
             if statement_words[0] in C512SDCC.__keil_register_types:
                 register_type, name = statement_words[0:2]
                 addr = "".join(statement_words[3:])
-                self.__register_map[name] = addr
+                self._register_map[name] = addr
                 if register_type == "sbit" and "^" in addr:
                     base_addr, sub_addr = addr.split("^", 1)
-                    if base_addr in self.__register_map:
-                        base_addr = self.__register_map[base_addr]
+                    if base_addr in self._register_map:
+                        base_addr = self._register_map[base_addr]
                     addr = f"{base_addr}+{sub_addr}"
                 statement_words = [register_type, "__at", f"({addr})", name]
 
