@@ -130,9 +130,9 @@ class C51_2_SDCC():
                         statement_words = [word, "__at",
                                            f"({addr})"] + statement_words
                         break
-                else:
-                    raise Exception(
-                        f"{self.c51_src}({self.cur_line_num}): unsupport keil memory type")
+                    else:
+                        raise Exception(
+                            f"{self.c51_src}({self.cur_line_num}): unsupport keil memory type")
 
             # translate register_type
             # sfr name = address;
