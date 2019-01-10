@@ -1,5 +1,6 @@
 import os
 
+
 class C51_2_SDCC():
     """
     unsupport bdata
@@ -19,52 +20,57 @@ class C51_2_SDCC():
         "reentrant": "__reentrant",
         "using": "__using",
     }
-    __keil_memory_types = ["code", "data",
-                           "idata", "pdata", "xdata", "bdata", "far"]
-    __keil_register_types = ["sfr", "sfr16", "sbit"]
+    __c51_memory_types = ["code", "data",
+                          "idata", "pdata", "xdata", "bdata", "far"]
+    __c51_register_types = ["sfr", "sfr16", "sbit"]
 
-    def __init__(self, src, dist, encode="utf8"):
+    def __init__(self, src: str, dist: str, encode="utf8"):
         self.__encode = encode  # input files encode
         self.__multi_line_comments_start = False  # multiline comment start
         self.cur_line_num = 0  # current line num
         if not os.path.exists(src):
-            raise Exception(f"keil_src not exist: {src}")
+            raise Exception(f"c51_src not exist: {src}")
         dist_dir = os.path.dirname(dist)
         if not os.path.exists(dist_dir) and dist_dir != "":
             os.makedirs(dist_dir)
-        self.keil_src = src
+        self.c51_src = src
         self.sdcc_src = dist
         self.__register_map = {}  # register name <=> addr
         self.convert_file()
 
     def convert_file(self):
-        sdcc_lines=""
-        f_keil = open(self.keil_src, "r", encoding=self.__encode)
-        for line in f_keil.readlines():
+        sdcc_lines = ""
+        f_c51 = open(self.c51_src, "r", encoding=self.__encode)
+        for line in f_c51.readlines():
             self.cur_line_num += 1
             sdcc_lines += self.__convert_line(line)
-        f_keil.close()
+        f_c51.close()
 
         f_sdcc = open(self.sdcc_src, "w", encoding="utf8")
         f_sdcc.write(sdcc_lines)
         f_sdcc.close()
 
-        print(f"{self.keil_src} --> {self.sdcc_src}")
+        print(f"{self.c51_src} --> {self.sdcc_src}")
 
-    def __get_words(self, statements):
+    def __get_words(self, statements: str)->list:
+        """
+        :param statements: "sfr PSW    = 0xD0"
+        :returns: ["sfr","PSW","=","0xD0"]
+        """
         statements = statements.replace("=", " = ")
         words = statements.split(" ")
         while "" in words:
             words.remove("")
         return words
 
-    def __parse_line(self, c_line):
-        # return indent, statements_words, statements_line_end, comments
-        # statements_words =[statement_words]
-        # example
-        #   sfr PSW    = 0xD0;//comments
-        # return (2,[["sfr","PSW","=","0xD0"]],"//comments")
-
+    def __parse_line(self, c_line: str)-> tuple((int, tuple, bool, str)):
+        """
+        :returns: indent, statements_words, statements_line_end, comments
+        statements_words =[statement_words]
+        example
+          sfr PSW    = 0xD0;//comments
+        return (2,[["sfr","PSW","=","0xD0"]],"//comments")
+        """
         c_line = c_line.expandtabs(4)
         if self.__multi_line_comments_start is True:
             if c_line.find("*/") != -1:
@@ -75,7 +81,7 @@ class C51_2_SDCC():
             statements_line, comments = c_line.split("/*")
             comments = "/*" + comments
             self.__multi_line_comments_start = True
-            if comments.find("*/")!= -1:
+            if comments.find("*/") != -1:
                 self.__multi_line_comments_start = False
         elif c_line.find("//") != -1:
             statements_line, comments = c_line.split("//")
@@ -96,11 +102,14 @@ class C51_2_SDCC():
                             for statement in statements]
         return indent, statements_words, statements_line_end, comments
 
-    def __convert_line(self, c51_line):
-
+    def __convert_line(self, c51_line: str)->str:
+        """
+        :param c51_line: 
+        :returns: sdcc line
+        """
         indent, statements_words, statements_line_end, comments = self.__parse_line(
             c51_line)
-        # keil 2 sdcc
+        # c51 2 sdcc
         if not statements_words:
             if comments is not None:
                 sdcc_line = comments
@@ -114,7 +123,7 @@ class C51_2_SDCC():
             if "_at_" in statement_words:
                 addr = statement_words[-1]
                 for word in statement_words:
-                    if word in C51_2_SDCC.__keil_memory_types:
+                    if word in C51_2_SDCC.__c51_memory_types:
                         statement_words.remove(word)
                         statement_words.remove(addr)
                         statement_words.remove("_at_")
@@ -123,11 +132,11 @@ class C51_2_SDCC():
                         break
                 else:
                     raise Exception(
-                        f"{self.cur_src}({self.cur_line_num}): unsupport keil memory type")
+                        f"{self.c51_src}({self.cur_line_num}): unsupport keil memory type")
 
             # translate register_type
             # sfr name = address;
-            if statement_words[0] in C51_2_SDCC.__keil_register_types:
+            if statement_words[0] in C51_2_SDCC.__c51_register_types:
                 register_type, name = statement_words[0:2]
                 addr = "".join(statement_words[3:])
                 self.__register_map[name] = addr

@@ -3,11 +3,11 @@ from setuptools import setup
 install_requires = []
 
 long_description = """
-Convert keil program to sdcc
+Convert keil c51 to sdcc
 feature
 - c51 to sdcc
 
-`website/docs <https://github.com/ywaby/keil2sdcc>`_
+website/docs <https://github.com/ywaby/keil2sdcc>
 """
 
 setup(name='keil2sdcc',
@@ -26,7 +26,6 @@ setup(name='keil2sdcc',
           'Topic :: Software Development :: Code Generators',
       ],
       keywords="Convert c51 to sdcc",
-
       packages=['keil2sdcc'],
       install_requires=install_requires,
       long_description=long_description,

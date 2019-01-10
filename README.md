@@ -14,7 +14,7 @@ need python 3.7
 import usage
 ```py
 import keil2sdcc
-keil2sdcc.C512SDCC(keil_file)
+keil2sdcc.c51_2_sdcc(keil_file)
 ```
 
 cmdline usage
