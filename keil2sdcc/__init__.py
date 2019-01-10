@@ -1,1 +1,1 @@
-from .c512sdcc import C512SDCC
+from .c512sdcc import C51_2_SDCC

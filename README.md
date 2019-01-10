@@ -1,25 +1,44 @@
-convert keil code to sdcc
-license under MIT
+Project under MIT license.
 
-feature
-- c51 to sdcc
+Feature
+- Convert keil c51 to sdcc
 
 ## install
 ```sh
 git clone git@github.com:ywaby/keil2sdcc.git
 python3 setup.py install
 ```
-use python 3.7
+need python 3.7
 
 ## usage
-import use
+import usage
 ```py
 import keil2sdcc
 keil2sdcc.C512SDCC(keil_file)
 ```
 
-console use
+cmdline usage
 ```sh
-keil2sdcc keil_c51_1.c keil_c51_2.c
-# generate keil_c51_1.sdcc.c keil_c51_2.sdcc.c at file dir
+usage: keil2sdcc [-h] [-v] [-e ENCODE] [-r] [-j n] [files [files ...]]
+
+convert keil c51 to sdcc
+
+positional arguments:
+  files                 keil srcs to convert;supprot glob
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --version         print version
+  -e ENCODE, --encode ENCODE
+                        assign keil src encode
+  -r, --replace         replace keil src with sdcc src
+  -j n, --jobs n        number of parallel jobs; match CPU count if value is 0
 ```
+
+example
+```sh
+keil2sdcc keil_c51.c # generate keil_c51.sdcc.c at src path
+keil2sdcc keil_c51.c --replace # replace keil src
+```
+
+more usage at [test.py](./test.py)

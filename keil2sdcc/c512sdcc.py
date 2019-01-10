@@ -1,7 +1,6 @@
 import os
 
-
-class C512SDCC():
+class C51_2_SDCC():
     """
     unsupport bdata
     """
@@ -24,36 +23,33 @@ class C512SDCC():
                            "idata", "pdata", "xdata", "bdata", "far"]
     __keil_register_types = ["sfr", "sfr16", "sbit"]
 
-    def __init__(self, keil_srcs=[str], encode="utf8"):
-        self._encode = encode  # input files encode
-        self._multi_line_comments_start = False  # multiline comment start
+    def __init__(self, src, dist, encode="utf8"):
+        self.__encode = encode  # input files encode
+        self.__multi_line_comments_start = False  # multiline comment start
         self.cur_line_num = 0  # current line num
-        self.cur_src = ""
-        self._register_map = {}  # register name <=> addr
-        if len(keil_srcs) != 0:
-            self.keil_srcs = keil_srcs
-            self.convert_all()
+        if not os.path.exists(src):
+            raise Exception(f"keil_src not exist: {src}")
+        dist_dir = os.path.dirname(dist)
+        if not os.path.exists(dist_dir) and dist_dir != "":
+            os.makedirs(dist_dir)
+        self.keil_src = src
+        self.sdcc_src = dist
+        self.__register_map = {}  # register name <=> addr
+        self.convert_file()
 
-    def convert_all(self):
-        for keil_src in self.keil_srcs:
-            self.cur_src = keil_src
-            self.cur_line_num = 0
-            self.convert_file(keil_src)
-
-    def convert_file(self, keil_src):
-        if not os.path.exists(keil_src):
-            raise Exception(f"keil_src not exist: {keil_src}")
-        folder, ext = os.path.splitext(keil_src)
-        sdcc_src = folder + ".sdcc.c"
-        f_keil = open(keil_src, "r", encoding=self._encode)
-        f_sdcc = open(sdcc_src, "w", encoding="utf8")
+    def convert_file(self):
+        sdcc_lines=""
+        f_keil = open(self.keil_src, "r", encoding=self.__encode)
         for line in f_keil.readlines():
             self.cur_line_num += 1
-            sdcc_line = self.__convert_line(line)
-            f_sdcc.write(sdcc_line)
+            sdcc_lines += self.__convert_line(line)
         f_keil.close()
+
+        f_sdcc = open(self.sdcc_src, "w", encoding="utf8")
+        f_sdcc.write(sdcc_lines)
         f_sdcc.close()
-        print(f"{keil_src} --> {sdcc_src}")
+
+        print(f"{self.keil_src} --> {self.sdcc_src}")
 
     def __get_words(self, statements):
         statements = statements.replace("=", " = ")
@@ -70,17 +66,17 @@ class C512SDCC():
         # return (2,[["sfr","PSW","=","0xD0"]],"//comments")
 
         c_line = c_line.expandtabs(4)
-        if self._multi_line_comments_start is True:
+        if self.__multi_line_comments_start is True:
             if c_line.find("*/") != -1:
-                self._multi_line_comments_start = False
+                self.__multi_line_comments_start = False
             return 0, None, "", c_line
         indent = len(c_line) - len(c_line.lstrip(" "))
         if c_line.find("/*") != -1:
             statements_line, comments = c_line.split("/*")
             comments = "/*" + comments
-            self._multi_line_comments_start = True
+            self.__multi_line_comments_start = True
             if comments.find("*/")!= -1:
-                self._multi_line_comments_start = False
+                self.__multi_line_comments_start = False
         elif c_line.find("//") != -1:
             statements_line, comments = c_line.split("//")
             comments = "//" + comments
@@ -118,7 +114,7 @@ class C512SDCC():
             if "_at_" in statement_words:
                 addr = statement_words[-1]
                 for word in statement_words:
-                    if word in C512SDCC.__keil_memory_types:
+                    if word in C51_2_SDCC.__keil_memory_types:
                         statement_words.remove(word)
                         statement_words.remove(addr)
                         statement_words.remove("_at_")
@@ -131,22 +127,22 @@ class C512SDCC():
 
             # translate register_type
             # sfr name = address;
-            if statement_words[0] in C512SDCC.__keil_register_types:
+            if statement_words[0] in C51_2_SDCC.__keil_register_types:
                 register_type, name = statement_words[0:2]
                 addr = "".join(statement_words[3:])
-                self._register_map[name] = addr
+                self.__register_map[name] = addr
                 if register_type == "sbit" and "^" in addr:
                     base_addr, sub_addr = addr.split("^", 1)
-                    if base_addr in self._register_map:
-                        base_addr = self._register_map[base_addr]
+                    if base_addr in self.__register_map:
+                        base_addr = self.__register_map[base_addr]
                     addr = f"{base_addr}+{sub_addr}"
                 statement_words = [register_type, "__at", f"({addr})", name]
 
             # traslate keyword
             for word in statement_words:
-                if word in C512SDCC.__keil2sdcc_dict:
+                if word in C51_2_SDCC.__keil2sdcc_dict:
                     statement_words[statement_words.index(
-                        word)] = C512SDCC.__keil2sdcc_dict[word]
+                        word)] = C51_2_SDCC.__keil2sdcc_dict[word]
             statements_words[idx] = statement_words  # update
         statements_line = ";".join(
             [" ".join(statement_words) for statement_words in statements_words]) + statements_line_end

@@ -1,6 +1,8 @@
 
 .vscode/
 todo.md
+task.py
+
 # SDCC stuff
 *.lnk
 *.lst
