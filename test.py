@@ -1,6 +1,4 @@
-'''
-python3 ./test.py
-'''
+# python3 ./test.py
 import os
 from keil2sdcc import C512SDCC
 os.system("python3 -m keil2sdcc -h")

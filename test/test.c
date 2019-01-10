@@ -28,8 +28,8 @@ sfr B = 0xF0; 			//B 寄存器
 sfr PSW    = 0xD0;          	//程序状态字寄存器	/*用户标志位0  ^*/
 	sbit CY    = PSW^7;      	//进位标志位
   
-
-
+sfr P0 = 0xF0; 
+sbit WDT_IO=P0^3;
       
 
 /****************************************
@@ -48,6 +48,7 @@ sfr PSW    = 0xD0;          	//程序状态字寄存器	/*用户标志位0  ^*/
 	sbit AC    = PSW^6;       		/*用户标志位0  ^*///辅助进位标志位
 	sbit F0    = PSW^5;       	/*用户标志位0  ^*/	//用户标志位0
 xdata char nobu _at_ 0x34;	/*用户标志位0  ^*/
+pdata char nobu _at_ 0x34;	/*用户标志位0  ^*/
   sbit F0=PSW^5;       	/*用户标志位0  ^*/
 /** @addtogroup  UserChange  移植修改
   @{

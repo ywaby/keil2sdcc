@@ -4,11 +4,11 @@
 /**
 * https://opensource.org/licenses/MIT
 *
-* @file FD612.h
-* @brief FD612 drive
-* @version 1.1
-* @author ywaby@163.coom
-* @date 2017-04-26
+* @file     FD612.h
+* @brief     FD612 drive
+* @version     1.1
+* @author      ywaby@163.coom
+* @date     2017-04-26
 * @copyright Copyright (c) 2017 ywaby@163.com
 *
 * This software is released under the MIT License.
@@ -28,19 +28,19 @@ __sfr __at (0xF0) B;//B 寄存器
 __sfr __at (0xD0) PSW;//程序状态字寄存器/*用户标志位0  ^*/
     __sbit __at (0xD0+7) CY;//进位标志位
   
-
-
+__sfr __at (0xF0) P0;
+__sbit __at (0xF0+3) WDT_IO;
       
 
 /****************************************
- * a
- * -------
- * | |
- * f | | b
- * ---g---
- * e | | c
- * | |
- * ---d--- dp
+ *            a
+ *         -------
+ *        |       |
+ *      f |       | b
+ *         ---g---
+ *      e |       | c
+ *        |       |
+ *         ---d---   dp
  ****************************************/
  
 /*------------ 系统管理特殊功能寄存器 -------------*/
@@ -48,7 +48,8 @@ __sfr __at (0xD0) PSW;//程序状态字寄存器/*用户标志位0  ^*/
     __sbit __at (0xD0+6) AC;/*用户标志位0  ^*///辅助进位标志位
     __sbit __at (0xD0+5) F0;/*用户标志位0  ^*/   //用户标志位0
 __xdata __at (0x34) char nobu;/*用户标志位0  ^*/
-  __sbit __at () F0=PSW^5;/*用户标志位0  ^*/
+__pdata __at (0x34) char nobu;/*用户标志位0  ^*/
+  __sbit __at (0xD0+5) F0;/*用户标志位0  ^*/
 /** @addtogroup  UserChange  移植修改
   @{
 */
@@ -84,7 +85,7 @@ void main(){
 */
     }
     case FD612_SW2: {/** @addtogroup  UserChange  移植修改
-      if (brightness == 0x07)/*用户标志位0  ^*/
+      if (brightness == 0x07) /*用户标志位0  ^*/
         brightness = 0x00;
       else
         brightness++;/*用户标志位0  ^*/

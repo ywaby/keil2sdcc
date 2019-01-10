@@ -142,7 +142,7 @@ class C512SDCC():
                     addr = f"{base_addr}+{sub_addr}"
                 statement_words = [register_type, "__at", f"({addr})", name]
 
-                # traslate keyword
+            # traslate keyword
             for word in statement_words:
                 if word in C512SDCC.__keil2sdcc_dict:
                     statement_words[statement_words.index(
