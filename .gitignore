@@ -1,8 +1,6 @@
-
 .vscode/
 todo.md
-task.py
-
+test/python_lang.py
 # SDCC stuff
 *.lnk
 *.lst
