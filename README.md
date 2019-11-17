@@ -50,4 +50,4 @@ keil2sdcc keil_c51.c --replace # replace keil src
 python3 -m keil2sdcc ./test/reg51.h ./test/test.c # header file is need before c
 ```
 
-more usage at [test.py](./test.py)
+more usage [tasks.py](./tasks.py) test task
