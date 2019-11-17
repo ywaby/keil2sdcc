@@ -23,8 +23,8 @@ def main():
                         action='store_true',
                         default=False)
     parser.add_argument('files',
-                        help='keil srcs to convert;supprot glob',
-                        nargs='*')
+                        help='keil srcs to convert, supprot glob',
+                        nargs='+')
     parser.add_argument('-j', '--jobs',
                         type=int,
                         metavar='n',
@@ -35,8 +35,8 @@ def main():
 
     if len(args.files) != 0:
         jobs_params = []
-        for f_dir in args.files:
-            for src in glob.glob(f_dir, recursive=True):
+        for src in args.files:
+            # for src in glob.glob(f_dir, recursive=True):
                 if args.replace:
                     dist = src
                 else:

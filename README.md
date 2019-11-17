@@ -8,7 +8,9 @@ Feature
 git clone git@github.com:ywaby/keil2sdcc.git
 python3 setup.py install
 ```
-need python 3.7
+need python 3.7+
+
+
 
 ## usage
 import usage
@@ -16,6 +18,12 @@ import usage
 import keil2sdcc
 keil2sdcc.c51_2_sdcc(keil_file)
 ```
+
+direct usage without install
+```
+python3 -m keil2sdcc ./test/reg51.h ./test/test.c
+```
+
 
 cmdline usage
 ```sh
@@ -39,6 +47,7 @@ example
 ```sh
 keil2sdcc keil_c51.c # generate keil_c51.sdcc.c at src path
 keil2sdcc keil_c51.c --replace # replace keil src
+python3 -m keil2sdcc ./test/reg51.h ./test/test.c # header file is need before c
 ```
 
 more usage at [test.py](./test.py)
