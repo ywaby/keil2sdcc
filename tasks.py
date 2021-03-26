@@ -2,11 +2,7 @@ import os
 from invoke import task
 
 @task
-def test():
-    print("\ntest: module usage") 
-    from keil2sdcc import C51_2_SDCC
-    C51_2_SDCC("test/test.c","test/test.sdcc.c","utf8")
-
+def test(ctx):
     print("\ntest: argparse")
     os.system("python3 -m keil2sdcc -h")
 
@@ -15,3 +11,8 @@ def test():
     os.remove("test/reg51.sdcc.h")
     os.remove("test/test.sdcc.c")
     os.system("python3 -m keil2sdcc ./test/*.[hc]")
+
+    print("\ntest: module usage") 
+    from keil2sdcc import C51_2_SDCC
+    C51_2_SDCC("test/test.c","test/test.import_usage.sdcc.c","utf8")
+    os.remove("test/test.import_usage.sdcc.c")

@@ -1,5 +1,7 @@
     __sfr __at (0xF0) B;
     //commet
+//// conment
+///// conment
 //commet
 /**
 * https://opensource.org/licenses/MIT
@@ -53,7 +55,6 @@ __xdata __at (0x34) char x_var;__pdata __at (0x34) char p_var;/*multi statements
 /** @addtogroup  UserChange  comment
   @{
 */
-
 #define FD612_DEBUG_EN 0///<comment
 #define FD612_DECODE_TAB_EN 1///<comment
 #define FD612_DISP_BUFF_EN 1///<comment

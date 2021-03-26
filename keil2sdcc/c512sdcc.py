@@ -2,8 +2,15 @@ import os
 
 
 class C51_2_SDCC():
-    """
-    unsupport bdata
+    """convert keil c51 to sdcc
+
+    init param:
+        src: source code file to convert
+        dist: convert to file
+
+    raises keyError: raises an exception when src don't exist
+
+    note: unsupport bdata
     """
     __keil2sdcc_dict = {
         "_at_": "__at",
@@ -24,7 +31,13 @@ class C51_2_SDCC():
                           "idata", "pdata", "xdata", "bdata", "far"]
     __c51_register_types = ["sfr", "sfr16", "sbit"]
 
-    def __init__(self, src: str, dist: str, encode="utf8"):
+    def __init__(self, src: str, dist: str, encode: str="utf8"):
+        """
+        param
+            * src: source code file to convert
+            * dist: convert to file
+        :raises keyError: raises an exception when src don't exist
+        """
         self.__encode = encode  # input files encode
         self.__multi_line_comments_start = False  # multiline comment start
         self.cur_line_num = 0  # current line num
@@ -52,24 +65,30 @@ class C51_2_SDCC():
 
         print(f"{self.c51_src} --> {self.sdcc_src}")
 
-    def __get_words(self, statements: str)->list:
+    def __get_words(self, statements: str) -> list:
+        """prase line code
+
+        param statements: line code
+        
+        example
+            "sfr PSW    = 0xD0" -> ["sfr","PSW","=","0xD0"]
+        returns: 
         """
-        :param statements: "sfr PSW    = 0xD0"
-        :returns: ["sfr","PSW","=","0xD0"]
-        """
+
         statements = statements.replace("=", " = ")
         words = statements.split(" ")
         while "" in words:
             words.remove("")
         return words
 
-    def __parse_line(self, c_line: str)-> tuple((int, tuple, bool, str)):
+    def __parse_line(self, c_line: str) -> tuple((int, tuple, bool, str)):
         """
-        :returns: indent, statements_words, statements_line_end, comments
-        statements_words =[statement_words]
+        :returns: 
+            (indent, statements_words, statements_line_end, comments)
+            statements_words =[statement_words]
+
         example
-          sfr PSW    = 0xD0;//comments
-        return (2,[["sfr","PSW","=","0xD0"]],"//comments")
+            "sfr PSW    = 0xD0;//comments"->  (2,[["sfr","PSW","=","0xD0"]],"//comments")
         """
         c_line = c_line.expandtabs(4)
         if self.__multi_line_comments_start is True:
@@ -84,8 +103,7 @@ class C51_2_SDCC():
             if comments.find("*/") != -1:
                 self.__multi_line_comments_start = False
         elif c_line.find("//") != -1:
-            statements_line, comments = c_line.split("//")
-            comments = "//" + comments
+            statements_line, comments = c_line[:c_line.find("//")], c_line[c_line.find("//") :]
         else:
             statements_line, comments = c_line, None
         statements_line = statements_line.strip()
@@ -102,9 +120,10 @@ class C51_2_SDCC():
                             for statement in statements]
         return indent, statements_words, statements_line_end, comments
 
-    def __convert_line(self, c51_line: str)->str:
+    def __convert_line(self, c51_line: str) -> str:
         """
         :param c51_line: 
+
         :returns: sdcc line
         """
         indent, statements_words, statements_line_end, comments = self.__parse_line(
@@ -145,9 +164,10 @@ class C51_2_SDCC():
                     if base_addr in self.__register_map:
                         base_addr = self.__register_map[base_addr]
                     addr = f"{base_addr}+{sub_addr}"
-                statement_words = [register_type, "__at", f"({addr})", name]
+                statement_words = [register_type,
+                                   "__at", f"({addr})", name]
 
-            # traslate keyword
+            # translate keyword
             for word in statement_words:
                 if word in C51_2_SDCC.__keil2sdcc_dict:
                     statement_words[statement_words.index(

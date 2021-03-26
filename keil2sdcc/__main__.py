@@ -23,7 +23,7 @@ def main():
                         action='store_true',
                         default=False)
     parser.add_argument('files',
-                        help='keil srcs to convert, supprot glob',
+                        help='keil srcs to convert, support glob, *.sdcc.ext will ignore',
                         nargs='+')
     parser.add_argument('-j', '--jobs',
                         type=int,
@@ -31,11 +31,12 @@ def main():
                         default=1,
                         help='number of parallel jobs; '
                              'match CPU count if value is 0')
-    args = parser.parse_args()
+    args = parser.parse_args() # dict {'key':value}
 
     if len(args.files) != 0:
         jobs_params = []
-        for src in args.files:
+        srcs=[src for src in args.files if not os.path.splitext(src)[0].endswith(".sdcc")]
+        for src in srcs:
             # for src in glob.glob(f_dir, recursive=True):
                 if args.replace:
                     dist = src
@@ -57,6 +58,5 @@ def main():
 
 def _job_fix(params):
     C51_2_SDCC(*params)
-
 if __name__ == '__main__':
     main()

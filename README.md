@@ -11,7 +11,6 @@ python3 setup.py install
 need python 3.7+
 
 
-
 ## usage
 import usage
 ```py
@@ -50,4 +49,4 @@ keil2sdcc keil_c51.c --replace # replace keil src
 python3 -m keil2sdcc ./test/reg51.h ./test/test.c # header file is need before c
 ```
 
-more usage [tasks.py](./tasks.py) test task
+more usage see [tasks.py](./tasks.py) test task
