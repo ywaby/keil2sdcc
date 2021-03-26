@@ -50,3 +50,8 @@ python3 -m keil2sdcc ./test/reg51.h ./test/test.c # header file is need before c
 ```
 
 more usage see [tasks.py](./tasks.py) test task
+
+## reference
+- [keil c51](https://www.keil.com/support/man_c51.htm)
+- [sdcc project](http://sdcc.sourceforge.net/snap.php) 
+- [ASxxxx Cross Assemblers](https://shop-pdp.net/ashtml/asxxxx.php)

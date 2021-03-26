@@ -122,9 +122,9 @@ class C51_2_SDCC():
 
     def __convert_line(self, c51_line: str) -> str:
         """
-        :param c51_line: 
+        param: c51_line 
 
-        :returns: sdcc line
+        returns: sdcc line
         """
         indent, statements_words, statements_line_end, comments = self.__parse_line(
             c51_line)
@@ -138,20 +138,18 @@ class C51_2_SDCC():
             return sdcc_line
         for idx, statement_words in enumerate(statements_words):
             # translate memory at
-            # char xdata text[256] _at_ 0xE000;
+            # extern volatile int xdata i _at_ 0x80ff; ->extern volatile __xdata __at (0x80ff) int i;
             if "_at_" in statement_words:
                 addr = statement_words[-1]
-                for word in statement_words:
-                    if word in C51_2_SDCC.__c51_memory_types:
-                        statement_words.remove(word)
-                        statement_words.remove(addr)
-                        statement_words.remove("_at_")
-                        statement_words = [word, "__at",
-                                           f"({addr})"] + statement_words
-                        break
-                    else:
-                        raise Exception(
-                            f"{self.c51_src}({self.cur_line_num}): unsupport keil memory type")
+                var_name = statement_words[-3]
+                mem_type=statement_words[-4]
+                var_type=statement_words[-5]
+                if mem_type in C51_2_SDCC.__c51_memory_types:
+                    statement_words = [*statement_words[:-4], mem_type,"__at",
+                                        f"({addr})",var_type,var_name]
+                else:
+                    raise Exception(
+                        f"{self.c51_src}({self.cur_line_num}): unsupport keil memory type:{word}")
 
             # translate register_type
             # sfr name = address;
@@ -166,8 +164,11 @@ class C51_2_SDCC():
                     addr = f"{base_addr}+{sub_addr}"
                 statement_words = [register_type,
                                    "__at", f"({addr})", name]
-
-            # translate keyword
+            # using 1-> using (1)
+            if "using" in statement_words:
+                use_idx=statement_words.index("using")
+                statement_words[use_idx+1]=f"({statement_words[use_idx+1]})"
+            # translate keyword with dict
             for word in statement_words:
                 if word in C51_2_SDCC.__keil2sdcc_dict:
                     statement_words[statement_words.index(

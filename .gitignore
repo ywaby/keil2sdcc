@@ -1,6 +1,8 @@
 .vscode/
-todo.md
+docs/todo.md
+docs/cx51.pdf
 test/python_lang.py
+
 # SDCC stuff
 *.lnk
 *.lst
